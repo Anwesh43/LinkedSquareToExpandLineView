@@ -223,4 +223,13 @@ class SquareToExpandLineView(ctx : Context) : View(ctx) {
             }
         }
     }
+
+    companion object {
+
+        fun create(activity: Activity) : SquareToExpandLineView {
+            val view : SquareToExpandLineView = SquareToExpandLineView(activity)
+            activity.setContentView(view)
+            return view 
+        }
+    }
 }
