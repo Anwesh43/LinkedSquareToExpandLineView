@@ -196,8 +196,30 @@ class SquareToExpandLineView(ctx : Context) : View(ctx) {
             }
         }
 
-        fun startUpdating(cb : (Int) -> Unit) {
+        fun startUpdating(cb : () -> Unit) {
             curr.startUpdating(cb)
+        }
+    }
+
+    data class Renderer(var view : SquareToExpandLineView) {
+
+        private val animator : Animator = Animator(view)
+        private val sel : SquareToExpandLine = SquareToExpandLine(0)
+
+        fun render(canvas : Canvas, paint : Paint) {
+            canvas.drawColor(foreColor)
+            sel.draw(canvas, paint)
+            animator.animate {
+                sel.update {i, scl ->
+                    animator.start()
+                }
+            }
+        }
+
+        fun handleTap() {
+            sel.startUpdating {
+                animator.start()
+            }
         }
     }
 }
