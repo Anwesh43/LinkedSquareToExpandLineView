@@ -30,3 +30,40 @@ fun Float.mirrorValue(a : Int, b : Int) : Float {
     return (1 - k) * a.inverse() + k * b.inverse()
 }
 fun Float.updateValue(dir : Float, a : Int, b : Int) : Float = mirrorValue(a, b) * dir * scGap
+
+fun Canvas.drawExpandLine( i : Int, sc : Float, y : Float, size : Float, paint : Paint) {
+    val sci : Float = sc.divideScale(i, lines / 2)
+    save()
+    translate(size * (1f - 2 * i) * sci, y)
+    drawLine(0f, 0f, size / 2, 0f, paint)
+    restore()
+}
+
+fun Canvas.drawDoubleExpand(i : Int, sc : Float, size : Float, paint : Paint) {
+    for (j in 0..(lines / 2 - 1)) {
+        drawExpandLine(j, sc.divideScale(j, lines / 2), -size / 2 + size * i, size, paint)
+    }
+}
+
+fun Canvas.drawSquareExpandLine(sc : Float, size : Float, paint : Paint) {
+    for (j in 0..(lines / 2 - 1)) {
+        drawDoubleExpand(j, sc, size, paint)
+    }
+}
+
+fun Canvas.drawSTENode(i : Int, scale : Float, paint : Paint) {
+    val w : Float = width.toFloat()
+    val h : Float = height.toFloat()
+    val gap : Float = h / (nodes + 1)
+    val size : Float = gap / sizeFactor
+    val sc1 : Float = scale.divideScale(0, 2)
+    val sc2 : Float = scale.divideScale(1, 2)
+    paint.color = foreColor
+    paint.strokeWidth = Math.min(w, h) / strokeFactor
+    paint.strokeCap = Paint.Cap.ROUND
+    save()
+    translate(w / 2, gap * (i + 1))
+    rotate(90f * sc2)
+    drawSquareExpandLine(sc1, size, paint)
+    restore()
+}
