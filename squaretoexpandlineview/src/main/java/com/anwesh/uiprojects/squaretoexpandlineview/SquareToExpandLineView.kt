@@ -20,6 +20,7 @@ val scGap : Float = 0.05f
 val scDiv : Double = 0.51
 val foreColor : Int = Color.parseColor("#01579B")
 val backColor : Int = Color.parseColor("#BDBDBD")
+val delay : Long = 20
 
 fun Int.inverse() : Float = 1f / this
 fun Float.scaleFactor() : Float = Math.floor(this / scDiv).toFloat()
@@ -32,22 +33,25 @@ fun Float.mirrorValue(a : Int, b : Int) : Float {
 fun Float.updateValue(dir : Float, a : Int, b : Int) : Float = mirrorValue(a, b) * dir * scGap
 
 fun Canvas.drawExpandLine( i : Int, sc : Float, y : Float, size : Float, paint : Paint) {
-    val sci : Float = sc.divideScale(i, lines / 2)
     save()
-    translate(size * (1f - 2 * i) * sci, y)
-    drawLine(0f, 0f, size / 2, 0f, paint)
+    translate((size / 2) * (1f - 2 * i) * sc, y)
+    drawLine(0f, 0f, (size / 2) * (1f - 2 * i), 0f, paint)
     restore()
 }
 
 fun Canvas.drawDoubleExpand(i : Int, sc : Float, size : Float, paint : Paint) {
     for (j in 0..(lines / 2 - 1)) {
+        save()
+        translate((size / 2) * (1f - 2 * j), 0f)
+        drawLine(0f, 0f, 0f, -size / 2 + size * i, paint)
+        restore()
         drawExpandLine(j, sc.divideScale(j, lines / 2), -size / 2 + size * i, size, paint)
     }
 }
 
 fun Canvas.drawSquareExpandLine(sc : Float, size : Float, paint : Paint) {
     for (j in 0..(lines / 2 - 1)) {
-        drawDoubleExpand(j, sc, size, paint)
+        drawDoubleExpand(j, sc.divideScale(j, lines / 2), size, paint)
     }
 }
 
@@ -112,7 +116,7 @@ class SquareToExpandLineView(ctx : Context) : View(ctx) {
             if (animated) {
                 cb()
                 try {
-                    Thread.sleep(50)
+                    Thread.sleep(delay)
                     view.invalidate()
                 } catch(ex : Exception) {
 
@@ -208,11 +212,11 @@ class SquareToExpandLineView(ctx : Context) : View(ctx) {
         private val sel : SquareToExpandLine = SquareToExpandLine(0)
 
         fun render(canvas : Canvas, paint : Paint) {
-            canvas.drawColor(foreColor)
+            canvas.drawColor(backColor)
             sel.draw(canvas, paint)
             animator.animate {
                 sel.update {i, scl ->
-                    animator.start()
+                    animator.stop()
                 }
             }
         }
@@ -229,7 +233,7 @@ class SquareToExpandLineView(ctx : Context) : View(ctx) {
         fun create(activity: Activity) : SquareToExpandLineView {
             val view : SquareToExpandLineView = SquareToExpandLineView(activity)
             activity.setContentView(view)
-            return view 
+            return view
         }
     }
 }
